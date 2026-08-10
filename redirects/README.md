@@ -30,20 +30,30 @@
 
 | 구분 | 건수 | 비고 |
 |---|---:|---|
-| e-Manual permalink | 938 | `docs/**/*.md` 의 `permalink` |
+| e-Manual URL | 1,178 | permalink 938 + 팝업 조각 240 |
 | docs 페이지 | 877 | sitemap 기준 (ko 미러 881) |
-| **1:1 매칭** | **612 (65.2%)** | 같은 문서로 직접 연결 |
-| 제품/도구 랜딩 폴백 | 104 | 문서는 없지만 같은 제품이 docs에 있어 그 제품 페이지로 |
-| 섹션 폴백 | 222 | docs 미이관 (BIOLOID·DREAM·OLLO·PLAY, CM-5/100/150/510, BT/ZIG 등 단종 제품) |
+| **1:1 매칭** | **824 (69.9%)** | 같은 문서로 직접 연결 |
+| 제품/도구 랜딩 폴백 | 115 | 문서는 없지만 같은 제품이 docs에 있어 그 제품 페이지로 |
+| 섹션 폴백 | 239 | docs 미이관 (BIOLOID·DREAM·OLLO·PLAY, CM-5/100/150/510, BT/ZIG 등 단종 제품) |
 | 구주소 체인 | 22 | `docs/redirect/*.md` 의 짧은 주소 (`/en/dynamixel_sdk` 등) |
 | 수동 지정 | 4 | `/engineer/`, `/openmanipulator/`, `/smart3/` 등 |
-| **매핑 총계** | **948** | |
+| **매핑 총계** | **1,188** | |
 
-고유 타깃 **625개 전부 HTTP 200 확인 완료** (`node verify.mjs`).
+고유 타깃 **787개 전부 HTTP 200**이고, **그중 추가 리다이렉트가 발생하는 것은 0건**입니다 (`node verify.mjs`).
 
-1:1 매칭률이 65%인 이유는 매칭 실패가 아니라 **해당 문서가 docs에 존재하지 않기 때문**입니다.
+1:1 매칭률이 70%인 이유는 매칭 실패가 아니라 **해당 문서가 docs에 존재하지 않기 때문**입니다.
 단종된 교육 키트와 구형 컨트롤러 문서가 신규 사이트로 이관되지 않았습니다.
 대응 제품이 docs에 없는 경우에는 엉뚱한 제품 페이지 대신 docs 첫 화면으로 보냅니다.
+
+### 주의해서 다룬 것
+
+- **끝 슬래시** — docs 는 슬래시 없는 주소를 슬래시 붙은 주소로 301 하는데 sitemap 에는 슬래시 없이
+  실려 있다. 그대로 쓰면 방문자가 매번 두 번 이동한다. 모든 타깃에 슬래시를 붙여 둔다.
+- **팝업 조각** — `layout: popup` 인 240개는 permalink 가 없지만 그 자체로 접근 가능한 URL 이다
+  (`/docs/en/popup/arduino_api/begin/` 은 실제로 200 이다). `collect.sh` 가 파일 경로에서 URL 을
+  만들어 매핑에 포함한다. `arduino_api` 42개는 docs 와 이름까지 1:1 로 일치한다.
+- **제품 교차 방지** — 슬러그만 보면 `platform/turtlebot3/quick-start` 가 `systems/op3/quick_start` 로
+  매칭된다. `allowedPrefix()` 가 섹션·제품 단위로 후보를 제한한다.
 
 ## 적용 방식
 
@@ -60,7 +70,7 @@
 | `_layouts/popup.html` | 팝업 조각도 직접 접근 가능하므로 함께 처리 |
 | `_layouts/redirect.html` | 기존 내부 리다이렉트를 docs 로 **한 번에** (2단 이동 제거) |
 
-빌드 결과 검증 기준 **1,205개 HTML 중 946개가 매핑대로**, 나머지는 매핑 대상이 아닌 조각과 정적 파일입니다.
+빌드 결과 검증 기준 **1,186개 페이지가 매핑대로** 이동하고, 리다이렉트가 없는 것은 Jekyll 이 처리하지 않는 doxygen 정적 파일뿐입니다.
 매핑에 없는 경로(검색, 아카이브, 404 등)는 언어에 따라 docs 첫 화면 또는 `/ko/` 로 보냅니다.
 
 **한계**: meta refresh + JS 방식이라 진짜 301이 아닙니다. 순위 승계는 canonical 로 보완했지만 301보다 약합니다.
@@ -98,7 +108,7 @@ Worker 쪽은 매핑에 없는 경로도 `.html` 꼬리 제거, 대소문자 보
 | `wrangler.toml` | Worker 배포 설정 |
 | `report-matched.txt` | 1:1 매칭 내역 (매칭 방식·점수 포함) |
 | `report-fallback.txt` | 폴백 처리된 경로 |
-| `report-ambiguous.txt` | 후보가 여럿이라 사람 확인이 필요한 건 (3건) |
+| `report-ambiguous.txt` | 후보가 여럿이라 사람 확인이 필요한 건 (5건) |
 | `data/` | 생성 입력 (docs sitemap, e-Manual permalink, 구주소 쌍) |
 
 ## 매핑 갱신
@@ -132,7 +142,7 @@ node verify.mjs       # 검증 (--sample 로 표본만)
 ```bash
 cd redirects
 node verify.mjs --sample   # 표본 (빠름)
-node verify.mjs            # 전체 587건 (수 분)
+node verify.mjs            # 전체 787건 (수 분)
 ```
 
 Jekyll 빌드 결과까지 확인하려면:
@@ -144,7 +154,7 @@ grep -c 'http-equiv="refresh"' -r /tmp/emanual_site --include='*.html'
 
 ## 남은 것
 
-- **doxygen 정적 파일 257개** — `docs/en/software/robotis_manipulator_libs/doxygen/html/` 아래.
+- **doxygen 정적 파일 276개** — `docs/en/software/robotis_manipulator_libs/doxygen/html/` 아래.
   Jekyll이 처리하지 않고 그대로 복사하는 파일이라 리다이렉트가 들어가지 않습니다.
   이 라이브러리 문서는 docs로 이관되지 않았으므로 그대로 두어도 무방합니다.
 - `_layouts/default.html` 의 이전 안내 팝업은 남겨 두었습니다.

@@ -5,7 +5,7 @@ https://docs.robotis.com/docs/tags/msgs
 https://docs.robotis.com/docs/tags/parts
 https://docs.robotis.com/docs/common/contact
 https://docs.robotis.com/docs/common/ecosystem
-https://docs.robotis.com/docs/common/oh_gym
+https://docs.robotis.com/docs/common/oh_project
 https://docs.robotis.com/docs/common/opensource
 https://docs.robotis.com/docs/dxl/cable_compatibility
 https://docs.robotis.com/docs/dxl/model_reference/

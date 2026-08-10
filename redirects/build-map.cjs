@@ -76,6 +76,20 @@ function allowedPrefix(src) {
   const section = s[2];
   const docsSection = SECTION_MAP[section];
   if (section === 'common') return { prefix: '/docs/common/', productLevel: true };
+
+  // 팝업 조각. 본문에서 AJAX 로 불러 쓰지만 그 자체로도 접근 가능한 URL 이고,
+  // 상당수는 docs 에 같은 이름의 문서가 있다.
+  if (section === 'popup') {
+    const sub = (s[3] || '').toLowerCase();
+    if (sub === 'arduino_api') return { prefix: '/docs/software/arduino_ide/arduino_api/', productLevel: true };
+    if (sub === 'engineer')    return { prefix: '/docs/edu/engineer/', productLevel: true };
+    if (sub === 'op3_ros2')    return { prefix: '/docs/systems/op3/', productLevel: true };
+    if (sub === 'turtlebot3')  return { prefix: '/docs/systems/turtlebot3/', productLevel: true };
+    if (sub === 'general')     return { prefix: '/docs/faq/', productLevel: false };
+    // 최상위 조각은 msg/srv 정의가 대부분이라 이름이 충분히 고유하다.
+    return { prefix: '/docs/', productLevel: false };
+  }
+
   if (!docsSection) return null;
 
   if (section === 'platform') {
