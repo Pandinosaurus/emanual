@@ -1,0 +1,22 @@
+{%- comment -%}
+  e-Manual 은 docs.robotis.com 으로 통합되었다. 모든 페이지를 대응 문서로 넘긴다.
+
+  _data/redirect_map.json 은 redirects/build-map.cjs 가 생성한다. 직접 고치지 말 것.
+  매핑에 없는 경로(검색, 아카이브, 404 등)는 docs 첫 화면으로 보낸다.
+
+  이 include 는 <head> 안에서 seo.html 보다 먼저 호출되어야 한다.
+  redirect_target 을 seo.html 이 canonical 로 재사용한다.
+{%- endcomment -%}
+
+{%- assign redirect_target = site.data.redirect_map[page.url] -%}
+{%- unless redirect_target -%}
+  {%- comment -%} popup 조각처럼 permalink 가 없는 페이지는 lang 이 비어 있으므로 경로로도 판별한다 {%- endcomment -%}
+  {%- if page.lang == 'kr' or page.url contains '/kr/' -%}
+    {%- assign redirect_target = 'https://docs.robotis.com/ko/' -%}
+  {%- else -%}
+    {%- assign redirect_target = 'https://docs.robotis.com/' -%}
+  {%- endif -%}
+{%- endunless -%}
+
+<meta http-equiv="refresh" content="0; url={{ redirect_target }}">
+<script>window.location.replace({{ redirect_target | jsonify }} + window.location.hash);</script>

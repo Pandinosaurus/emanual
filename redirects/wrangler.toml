@@ -1,0 +1,8 @@
+name = "emanual-redirect"
+main = "worker.js"
+compatibility_date = "2026-01-01"
+
+# emanual.robotis.com 이 Cloudflare 네임서버를 쓰고, DNS 레코드가 프록시(주황 구름) 상태여야 한다.
+[[routes]]
+pattern = "emanual.robotis.com/*"
+zone_name = "robotis.com"

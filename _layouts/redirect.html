@@ -12,7 +12,11 @@
 <html lang="{{ page.lang | default: "en" }}" class="no-js">
   <head>
     <title>A web page that points a browser to a different page after 2 seconds</title>
-    <meta http-equiv="refresh" content="0; URL={{ page.redirecturl }}">
+    {% comment %}
+      과거에는 page.redirecturl(사이트 내부 경로)로 보냈으나, 이제 head.html 이
+      redirect_map 을 통해 docs.robotis.com 의 대응 문서로 바로 보낸다.
+      여기서 meta refresh 를 또 내보내면 그쪽이 먼저 적용되어 두 번 이동하게 된다.
+    {% endcomment %}
     <meta name="keywords" content="automatic redirection">
     {% include head.html %}
     {% include head/custom.html %}

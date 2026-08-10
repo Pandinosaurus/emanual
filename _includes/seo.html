@@ -45,7 +45,14 @@
 <meta property="og:site_name" content="{{ site.title }}">
 <meta property="og:title" content="{{ page.title | default: site.title | markdownify | strip_html | strip_newlines | escape_once }}">
 
-{% if seo_url %}
+{% comment %}
+  docs.robotis.com 으로 이전했으므로 canonical 은 이전 대상 문서를 가리켜야 한다.
+  redirect_target 은 head.html 에서 redirect-to-docs.html 이 먼저 설정한다.
+{% endcomment %}
+{% if redirect_target %}
+  <link rel="canonical" href="{{ redirect_target }}">
+  <meta property="og:url" content="{{ redirect_target }}">
+{% elsif seo_url %}
   <link rel="canonical" href="{{ page.url | prepend: seo_url | replace: "/index.html", "/" }}">
   <meta property="og:url" content="{{ page.url | prepend: seo_url | replace: "/index.html", "/" }}">
 {% endif %}
