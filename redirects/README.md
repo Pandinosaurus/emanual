@@ -30,16 +30,16 @@
 
 | 구분 | 건수 | 비고 |
 |---|---:|---|
-| e-Manual URL | 1,178 | permalink 938 + 팝업 조각 240 |
+| e-Manual URL | 1,196 | permalink 938 + 경로 기반 258 |
 | docs 페이지 | 877 | sitemap 기준 (ko 미러 881) |
-| **1:1 매칭** | **824 (69.9%)** | 같은 문서로 직접 연결 |
+| **1:1 매칭** | **842 (70.4%)** | 같은 문서로 직접 연결 |
 | 제품/도구 랜딩 폴백 | 115 | 문서는 없지만 같은 제품이 docs에 있어 그 제품 페이지로 |
 | 섹션 폴백 | 239 | docs 미이관 (BIOLOID·DREAM·OLLO·PLAY, CM-5/100/150/510, BT/ZIG 등 단종 제품) |
 | 구주소 체인 | 22 | `docs/redirect/*.md` 의 짧은 주소 (`/en/dynamixel_sdk` 등) |
 | 수동 지정 | 4 | `/engineer/`, `/openmanipulator/`, `/smart3/` 등 |
-| **매핑 총계** | **1,188** | |
+| **매핑 총계** | **1,206** | |
 
-고유 타깃 **787개 전부 HTTP 200**이고, **그중 추가 리다이렉트가 발생하는 것은 0건**입니다 (`node verify.mjs`).
+고유 타깃 **805개 전부 HTTP 200**이고, **그중 추가 리다이렉트가 발생하는 것은 0건**입니다 (`node verify.mjs`).
 
 1:1 매칭률이 70%인 이유는 매칭 실패가 아니라 **해당 문서가 docs에 존재하지 않기 때문**입니다.
 단종된 교육 키트와 구형 컨트롤러 문서가 신규 사이트로 이관되지 않았습니다.
@@ -49,9 +49,10 @@
 
 - **끝 슬래시** — docs 는 슬래시 없는 주소를 슬래시 붙은 주소로 301 하는데 sitemap 에는 슬래시 없이
   실려 있다. 그대로 쓰면 방문자가 매번 두 번 이동한다. 모든 타깃에 슬래시를 붙여 둔다.
-- **팝업 조각** — `layout: popup` 인 240개는 permalink 가 없지만 그 자체로 접근 가능한 URL 이다
-  (`/docs/en/popup/arduino_api/begin/` 은 실제로 200 이다). `collect.sh` 가 파일 경로에서 URL 을
-  만들어 매핑에 포함한다. `arduino_api` 42개는 docs 와 이름까지 1:1 로 일치한다.
+- **permalink 없는 페이지** — 258개는 파일 경로가 곧 URL 이다
+  (`/docs/en/popup/arduino_api/begin/` 은 실제로 200 이다). `collect.sh` 가 경로에서 URL 을 만든다.
+  `arduino_api` 42개와 `popup/engineer` 16개는 docs 와 이름까지 1:1 로 일치한다.
+  **`layout` 이나 front matter 유무로 거르면 안 된다** — 아래 "로컬 빌드의 함정" 참고.
 - **제품 교차 방지** — 슬러그만 보면 `platform/turtlebot3/quick-start` 가 `systems/op3/quick_start` 로
   매칭된다. `allowedPrefix()` 가 섹션·제품 단위로 후보를 제한한다.
 
@@ -142,7 +143,7 @@ node verify.mjs       # 검증 (--sample 로 표본만)
 ```bash
 cd redirects
 node verify.mjs --sample   # 표본 (빠름)
-node verify.mjs            # 전체 787건 (수 분)
+node verify.mjs            # 전체 805건 (수 분)
 ```
 
 Jekyll 빌드 결과까지 확인하려면:
@@ -151,6 +152,22 @@ Jekyll 빌드 결과까지 확인하려면:
 bundle exec jekyll build --destination /tmp/emanual_site
 grep -c 'http-equiv="refresh"' -r /tmp/emanual_site --include='*.html'
 ```
+
+## 로컬 빌드의 함정
+
+**GitHub Pages 는 이 저장소의 `Gemfile` 을 쓰지 않습니다.** 자체 `github-pages` 젬 세트로 빌드하며
+거기에는 기본 플러그인이 딸려 옵니다. 그래서 로컬 `jekyll build` 결과와 실제 배포본이 다릅니다.
+
+| 플러그인 | 영향 |
+|---|---|
+| `jekyll-optional-front-matter` | front matter 가 없는 `.md` 도 **페이지로 렌더링**한다 |
+| `jekyll-default-layout` | 그런 페이지에 레이아웃(`default`)을 붙인다 → `head.html` 이 들어간다 |
+
+실제 사례: `docs/en/faq/op.md` 는 front matter 가 없어 로컬 빌드에서는 정적 파일로 복사되지만,
+`https://emanual.robotis.com/docs/en/faq/op/` 는 라이브에서 테마가 적용된 **200 페이지**입니다.
+
+그래서 `collect.sh` 는 front matter 를 보지 않고 **permalink 가 없는 모든 `.md` 의 경로**를 URL 로 씁니다.
+같은 이유로 로컬 빌드 검증 시 이 페이지들은 나타나지 않으니, 매핑에만 있고 빌드에 없다고 나와도 정상입니다.
 
 ## 남은 것
 

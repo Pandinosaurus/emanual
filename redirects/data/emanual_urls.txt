@@ -164,6 +164,7 @@
 /docs/en/faq/faq_software/
 /docs/en/faq/faq_steam/
 /docs/en/faq/general/
+/docs/en/faq/op/
 /docs/en/file_path/lower_case_file_name_without_extension/
 /docs/en/parts/
 /docs/en/parts/all-controller/
@@ -364,6 +365,7 @@
 /docs/en/platform/turtlebot3/basic_operation/
 /docs/en/platform/turtlebot3/bringup/
 /docs/en/platform/turtlebot3/challenges/
+/docs/en/platform/turtlebot3/common_notice/
 /docs/en/platform/turtlebot3/compatible_devices/
 /docs/en/platform/turtlebot3/contact_us/
 /docs/en/platform/turtlebot3/deeplearning/
@@ -500,6 +502,14 @@
 /docs/en/popup/dynamixel_workbench_msgs_DynamixelState/
 /docs/en/popup/dynamixel_workbench_msgs_DynamixelStateList/
 /docs/en/popup/dynamixel_workbench_msgs_GetDynamixelInfo/
+/docs/en/popup/engineer/connect_controller_mobile/
+/docs/en/popup/engineer/connect_controller_pc/
+/docs/en/popup/engineer/engineer_app_installation/
+/docs/en/popup/engineer/motion_download_mobile/
+/docs/en/popup/engineer/motion_download_pc/
+/docs/en/popup/engineer/python_download_pc/
+/docs/en/popup/engineer/task_download_mobile/
+/docs/en/popup/engineer/task_download_pc/
 /docs/en/popup/faq_protocol_compatibility_table/
 /docs/en/popup/general/change_system_preference_osx/
 /docs/en/popup/general/cm_100_download_task/
@@ -1134,6 +1144,14 @@
 /docs/kr/platform/turtlebot3/overview/
 /docs/kr/popup/apk_install/
 /docs/kr/popup/cable_compatibility/
+/docs/kr/popup/engineer/connect_controller_mobile/
+/docs/kr/popup/engineer/connect_controller_pc/
+/docs/kr/popup/engineer/engineer_app_installation/
+/docs/kr/popup/engineer/motion_download_mobile/
+/docs/kr/popup/engineer/motion_download_pc/
+/docs/kr/popup/engineer/python_download_pc/
+/docs/kr/popup/engineer/task_download_mobile/
+/docs/kr/popup/engineer/task_download_pc/
 /docs/kr/popup/faq_protocol_compatibility_table/
 /docs/kr/popup/usb_driver_install/
 /docs/kr/reference/dxl-selection-guide/
