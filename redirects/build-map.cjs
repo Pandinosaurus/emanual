@@ -15,6 +15,8 @@
 const fs = require('fs');
 const path = require('path');
 
+const DEST = 'https://docs.robotis.com';
+
 process.chdir(__dirname);
 const read = f => fs.readFileSync(f, 'utf8').split('\n').map(s => s.trim()).filter(Boolean);
 
@@ -229,6 +231,15 @@ for (let i = 0; i < 3; i++) {          // 다단 체인 대비 반복
   }
 }
 
+// 자동 매칭 대상이 아닌 예외 경로 (docs/** 밖에 있거나 언어 접두어가 없는 구주소)
+const MANUAL_OVERRIDE = {
+  '/engineer': '/docs/edu/engineer/kit1',
+  '/openmanipulator': '/docs/systems/openmanipulator_x/assembly',
+  '/docs/turtlebot3_textbook': '/ko/docs/systems/turtlebot3/overview/',
+  '/smart3': '/ko/docs/software/overview',
+};
+for (const [k, v] of Object.entries(MANUAL_OVERRIDE)) mapObj[k] = v;
+
 // --- 출력 --------------------------------------------------------------------
 const entries = Object.entries(mapObj).sort(([a], [b]) => a.localeCompare(b));
 
@@ -238,6 +249,18 @@ fs.writeFileSync('redirects.csv',
   ].join('\n') + '\n');
 
 fs.writeFileSync('redirect-map.json', JSON.stringify(Object.fromEntries(entries), null, 0) + '\n');
+
+// Jekyll(GitHub Pages)용 데이터 파일.
+// _includes/redirect-to-docs.html 이 site.data.redirect_map[page.url] 로 조회한다.
+// page.url 은 permalink 의 끝 슬래시 유무를 그대로 따르므로 두 형태를 모두 넣는다.
+const jekyllMap = { '/': DEST + '/' };
+for (const [src, dst] of entries) {
+  const abs = DEST + dst;
+  jekyllMap[src] = abs;
+  jekyllMap[src.endsWith('/') ? src.slice(0, -1) : src + '/'] = abs;
+}
+fs.writeFileSync(path.join('..', '_data', 'redirect_map.json'),
+  JSON.stringify(jekyllMap, null, 0) + '\n');
 
 fs.writeFileSync('report-matched.txt',
   matched.map(m => `${m.how.padEnd(11)} score=${m.score} ${m.ambiguous ? 'AMBIG' : '     '}  ${m.src}  ->  ${m.dst}`)

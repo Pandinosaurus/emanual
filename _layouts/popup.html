@@ -1,3 +1,8 @@
+{%- comment -%}
+  팝업 조각도 직접 접근 가능한 URL 이므로 docs 로 넘긴다.
+  이 조각을 AJAX 로 불러오던 본문 페이지들도 모두 리다이렉트되므로 팝업이 열릴 일은 없다.
+{%- endcomment -%}
+{% include redirect-to-docs.html %}
 
 <div id=popup class="popup_window">
   {{ content }}
