@@ -136,6 +136,7 @@ exclude:
   - package.json
   - Rakefile
   - README
+  - redirects # docs.robotis.com 리다이렉트 매핑/배포 자산 (사이트에 포함하지 않음)
   - tmp
 keep_files:
   - .git

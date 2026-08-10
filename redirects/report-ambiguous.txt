@@ -1,0 +1,3 @@
+score=2  /docs/en/platform/omy/imitation_learning/  ->  /docs/systems/omy/imitation_learning/
+score=4  /docs/en/software/dynamixel/dynamixel_sdk/library_setup/cpp/  ->  /docs/software/dynamixel_sdk/library_setup/cpp
+score=4  /docs/en/software/dynamixel/dynamixel_sdk/library_setup/python/  ->  /docs/software/dynamixel_sdk/library_setup/python
