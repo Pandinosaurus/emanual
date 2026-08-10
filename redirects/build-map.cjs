@@ -194,10 +194,10 @@ function refinePrefix(src, prefix) {
 
 // 접두어를 못 구한 경우의 섹션 폴백 (모두 200 확인된 경로)
 const SECTION_FALLBACK = [
-  [/^\/docs\/(en|kr)\/software\/dynamixel\/dynamixel_sdk\//, '/docs/software/dynamixel_sdk/overview'],
-  [/^\/docs\/(en|kr)\/software\//,                           '/docs/software/overview'],
+  [/^\/docs\/(en|kr)\/software\/dynamixel\/dynamixel_sdk\//, '/docs/software/dynamixel_sdk/overview/'],
+  [/^\/docs\/(en|kr)\/software\//,                           '/docs/software/overview/'],
   [/^\/docs\/(en|kr)\/(dxl|all-dyd|dyd)\//,                  '/docs/dxl/model_reference/'],
-  [/^\/docs\/(en|kr)\/faq\//,                                '/docs/faq/faq_general'],
+  [/^\/docs\/(en|kr)\/faq\//,                                '/docs/faq/faq_general/'],
 ];
 
 const matched = [], fallback = [];
@@ -253,6 +253,13 @@ const MANUAL_OVERRIDE = {
 };
 for (const [k, v] of Object.entries(MANUAL_OVERRIDE)) mapObj[k] = v;
 
+// docs 는 끝 슬래시가 없는 주소를 슬래시 붙은 주소로 301 한다.
+// sitemap 에는 슬래시 없이 실려 있으므로 그대로 쓰면 방문자가 매번 두 번 이동한다.
+// 슬래시를 붙인 형태는 전수 확인 결과 항상 곧바로 200 이다.
+for (const k of Object.keys(mapObj)) {
+  if (!mapObj[k].endsWith('/')) mapObj[k] += '/';
+}
+
 // --- 출력 --------------------------------------------------------------------
 const entries = Object.entries(mapObj).sort(([a], [b]) => a.localeCompare(b));
 
@@ -296,14 +303,14 @@ const MAP = ${JSON.stringify(Object.fromEntries(entries), null, 0)};
 
 // MAP 에 없는 경로용 접두어 규칙 (모두 200 확인된 타깃)
 const PREFIX_RULES = [
-  [/^\\/docs\\/kr\\/software\\/dynamixel\\/dynamixel_sdk\\//, '/ko/docs/software/dynamixel_sdk/overview'],
-  [/^\\/docs\\/en\\/software\\/dynamixel\\/dynamixel_sdk\\//, '/docs/software/dynamixel_sdk/overview'],
-  [/^\\/docs\\/kr\\/software\\//,                             '/ko/docs/software/overview'],
-  [/^\\/docs\\/en\\/software\\//,                             '/docs/software/overview'],
+  [/^\\/docs\\/kr\\/software\\/dynamixel\\/dynamixel_sdk\\//, '/ko/docs/software/dynamixel_sdk/overview/'],
+  [/^\\/docs\\/en\\/software\\/dynamixel\\/dynamixel_sdk\\//, '/docs/software/dynamixel_sdk/overview/'],
+  [/^\\/docs\\/kr\\/software\\//,                             '/ko/docs/software/overview/'],
+  [/^\\/docs\\/en\\/software\\//,                             '/docs/software/overview/'],
   [/^\\/docs\\/kr\\/(dxl|all-dyd|dyd)\\//,                    '/ko/docs/dxl/model_reference/'],
   [/^\\/docs\\/en\\/(dxl|all-dyd|dyd)\\//,                    '/docs/dxl/model_reference/'],
-  [/^\\/docs\\/kr\\/faq\\//,                                  '/ko/docs/faq/faq_general'],
-  [/^\\/docs\\/en\\/faq\\//,                                  '/docs/faq/faq_general'],
+  [/^\\/docs\\/kr\\/faq\\//,                                  '/ko/docs/faq/faq_general/'],
+  [/^\\/docs\\/en\\/faq\\//,                                  '/docs/faq/faq_general/'],
   [/^\\/docs\\/kr\\//,                                        '/ko/'],
   [/^\\/(kr|ko)\\//,                                          '/ko/'],
 ];
