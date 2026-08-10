@@ -58,34 +58,41 @@ const PLATFORM_ALIAS = {
 // e-Manual software/<X[/Y]> -> docs software/<Z>
 const SOFTWARE_ALIAS = {
   'dynamixel/dynamixel_sdk': 'dynamixel_sdk',
+  'dynamixel/dynamixel_easy_sdk': 'dynamixel_easy_sdk',
   'dynamixel/dynamixel_wizard2': 'dynamixel_wizard_2_0',
   'dynamixel/dynamixel_workbench': 'dynamixel_workbench',
+  'dynamixel/dynamixel_workbench_jp': 'dynamixel_workbench',
   'arduino_ide': 'arduino_ide', 'arduino_ide_jp': 'arduino_ide',
   'rplus1': 'rplus_1_0', 'rplus2': 'rplus_manager_2_0', 'rplustask3': 'rplus_task_3_0',
   // embedded_sdk / mobile_app / opencm_ide / rplus_mobile / robotis_* 는 docs 미이관
 };
 
-// 소스 경로에서 docs 쪽 "허용 접두어"를 계산. null 이면 1:1 매칭 대상 아님(폴백).
+// 소스 경로에서 docs 쪽 "허용 접두어"를 계산.
+//   prefix       : 후보를 이 접두어 아래로 제한. null 이면 1:1 매칭 대상 아님.
+//   productLevel : 접두어가 이미 제품/도구 단위인가. false 면 1:1 실패 시 랜딩 유도를
+//                  하지 않는다 (단종 부품을 엉뚱한 제품 페이지로 보내지 않기 위함).
 function allowedPrefix(src) {
   const s = segs(src);            // ['docs', 'en', section, ...]
   const section = s[2];
   const docsSection = SECTION_MAP[section];
-  if (section === 'common') return '/docs/common/';
+  if (section === 'common') return { prefix: '/docs/common/', productLevel: true };
   if (!docsSection) return null;
 
   if (section === 'platform') {
     // platform/common/* 은 humanoid_navigation, robotis_math 등 OP3 계열 공용 문서
-    if (s[3] === 'common') return '/docs/systems/op3/';
+    if (s[3] === 'common') return { prefix: '/docs/systems/op3/', productLevel: true };
+    // platform/msgs/* 는 docs 에서 systems/msgs 와 systems/<제품>/msgs 로 나뉘었다
+    if ((s[3] || '').toLowerCase() === 'msgs') return { prefix: '/docs/systems/', productLevel: false };
     const prod = PLATFORM_ALIAS[(s[3] || '').toLowerCase()];
-    return prod ? `/docs/systems/${prod}/` : null;
+    return prod ? { prefix: `/docs/systems/${prod}/`, productLevel: true } : null;
   }
   if (section === 'software') {
     const two = `${s[3]}/${s[4]}`.toLowerCase();
     const one = (s[3] || '').toLowerCase();
     const sw = SOFTWARE_ALIAS[two] || SOFTWARE_ALIAS[one];
-    return sw ? `/docs/software/${sw}/` : null;
+    return sw ? { prefix: `/docs/software/${sw}/`, productLevel: true } : null;
   }
-  return `/docs/${docsSection}/`;
+  return { prefix: `/docs/${docsSection}/`, productLevel: false };
 }
 
 // --- docs 인덱스 -------------------------------------------------------------
@@ -107,9 +114,9 @@ function score(src, cand) {
 }
 
 function match(src) {
-  const prefix = allowedPrefix(src);
-  if (!prefix) return null;
-  const ok = c => (c + '/').startsWith(prefix);
+  const scope = allowedPrefix(src);
+  if (!scope) return null;
+  const ok = c => (c + '/').startsWith(scope.prefix);
 
   const l = norm(leaf(src)), t2 = norm(tail2(src));
   // e-Manual 은 평면 구조(appendix_dynamixel), docs 는 중첩 구조(more_info/dynamixel)
@@ -201,9 +208,15 @@ for (const src of emanual) {
   const m = match(src);
   if (m) { matched.push({ ...m, src, dst: withLang(m.dst) }); continue; }
 
-  // 같은 제품/도구(가능하면 같은 하위 섹션)의 랜딩으로 유도
-  const prefix = allowedPrefix(src);
-  let dst = prefix ? landing(refinePrefix(src, prefix)) : null;
+  // 같은 제품/도구(가능하면 같은 하위 섹션)의 랜딩으로 유도.
+  // 섹션 루트에서 더 좁히지 못했다면 랜딩을 쓰지 않는다 — 단종 부품을
+  // 관계없는 제품 페이지로 보내느니 docs 첫 화면에서 검색하게 두는 편이 낫다.
+  const scope = allowedPrefix(src);
+  let dst = null;
+  if (scope) {
+    const refined = refinePrefix(src, scope.prefix);
+    if (scope.productLevel || refined !== scope.prefix) dst = landing(refined);
+  }
   let how = dst ? 'landing' : 'section';
   if (!dst) {
     dst = '/';                                    // /docs/ 는 인덱스가 없어 404
